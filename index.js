@@ -133,6 +133,17 @@ const dbSetup = () => {
     //         console.log("1 record successfully inserted into db");
     //     }
     // });
+
+    //Update User Adjudicator
+    const queryString =`UPDATE users set userType='JUDGE' WHERE email = 'test@sightdigital.co.za , test2@sightdigital.co.za'`;
+    mysqlConnection.query(queryString, function (err, result) {
+    if (err) {
+    console.log("fail to update usertype judge. An error occurred.");
+    } else {
+    console.log("Judge table updated record successfully on db");
+    }
+    });
+
 }
 
 
