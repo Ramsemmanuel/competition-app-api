@@ -56,6 +56,8 @@ const dbSetup = () => {
                 {fieldName: 'userType', type: 'VARCHAR(255)', required: false},
                 {fieldName: 'nationality', type: 'VARCHAR(255)', required: false},
                 {fieldName: 'password', type: 'VARCHAR(255)', required: true},
+                {fieldName:'dateAdded', type:'VARCHAR(255)', required: false},
+                {fieldName:'userGroup', type:'VARCHAR(255)', required: false},
             ]
         },
         {
@@ -362,21 +364,47 @@ app.post('/create-user', (req, res) => {
 
 //Update a users
 app.put('/update-user', (req, res) => {
-    bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
-        let userData = req.body;
-        userData.password = hash;
-        mysqlConnection.query(`UPDATE users SET ? WHERE id = '${userData.id}'`, userData, (err, results, fields) => {
-            if (results) {
-                res.send({
-                    "code":200,
-                    "data": results[0],
-                    "message":"Updated successfully"
-                });
-            }
-            else {
-                console.log(err);
-            }
-        });
+    delete(req.body.password)
+    mysqlConnection.query(`UPDATE users SET ? WHERE id = '${req.body.id}'`, req.body, (err, results, fields) => {
+        if (results) {
+            res.send({
+                "code":200,
+                "data": results[0],
+                "message":"Updated successfully"
+            });
+        }
+        else {
+            console.log(err);
+            res.send({
+                "code":err.errno,
+                "data": err.sqlMessage,
+                "message":"Error occured while updating record"
+            });
+        }
+    });
+});
+
+//Search user based on criteria
+
+app.post('/usersearch', (req, res) => {
+    var d = req.body;
+    var sql = "SELECT * FROM users WHERE (usertype = 'JUDGE' OR usertype = 'ARTIST' OR usertype is null )  ";
+    var conditions = []
+    Object.keys(d).map((k)=>{
+        if(d[k])
+            conditions.push(k+" LIKE '%"+d[k]+"%'")
+    })
+
+    if(conditions.length)
+        sql += ' AND '+ conditions.join(' AND ');  
+    
+    mysqlConnection.query(sql, (err, users, fields) => {
+        if (!err) {
+           res.send(users);
+        }
+        else {
+            console.log(err);
+        }
     })
 });
 
