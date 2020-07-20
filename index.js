@@ -260,8 +260,10 @@ app.post('/add-artwork', (req, res) => {
 
 //Get all artworks
 app.get('/artworks', (req, res) => {
-    mysqlConnection.query('SELECT * FROM artworks', (err, rows, fields) => {
+    console.log('Fetching artworks by :',req.query)
+    mysqlConnection.query('SELECT e.* FROM artworks  e INNER JOIN users u ON e.userId = u.id AND u.userGroup = "'+req.query.group+'"', (err, rows, fields) => {
         if (!err) {
+            console.log('Found Artworks :',rows.length)
             res.send(rows);
         }
         else {
@@ -529,8 +531,10 @@ app.get('/entries-user-ids', (req, res) => {
 
 //Get all artworks
 app.get('/entries', (req, res) => {
-    mysqlConnection.query('SELECT * FROM entries', (err, rows, fields) => {
+    console.log('Fetching entries by :',req.query)
+    mysqlConnection.query('SELECT e.* FROM entries e INNER JOIN users u ON e.userId = u.id AND u.userGroup = "'+req.query.group+'"', (err, rows, fields) => {
         if (!err) {
+            console.log('Found Entries :',rows.length)
             res.send(rows);
         }
         else {
@@ -559,8 +563,10 @@ app.put('/update-entry', (req, res) => {
 
 //Get all votes
 app.get('/votes', (req, res) => {
-    mysqlConnection.query('SELECT * FROM votes', (err, rows, fields) => {
+    console.log('Fetching votes by :',req.query)
+    mysqlConnection.query('SELECT e.* FROM votes e INNER JOIN users u ON e.entryUserId = u.id AND u.userGroup = "'+req.query.group+'"', (err, rows, fields) => {
         if (!err) {
+            console.log('Found Votes :',rows.length)
             res.send(rows);
         }
         else {
