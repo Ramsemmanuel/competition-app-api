@@ -408,7 +408,30 @@ app.post('/usersearch', (req, res) => {
 
     if(conditions.length)
         sql += ' AND '+ conditions.join(' AND ');  
-    
+        
+    mysqlConnection.query(sql, (err, users, fields) => {
+        if (!err) {
+           res.send(users);
+        }
+        else {
+            console.log(err);
+        }
+    })
+});
+
+app.post('/artistsearch', (req, res) => {
+    var d = req.body;
+    var sql = "SELECT * FROM users WHERE (usertype = 'ARTIST' OR usertype is null )  ";
+    var conditions = []
+    Object.keys(d).map((k)=>{
+        if(d[k])
+            conditions.push(k+" LIKE '%"+d[k]+"%'")
+    })
+
+    if(conditions.length)
+        sql += ' AND '+ conditions.join(' AND ');  
+        
+    console.log(sql);
     mysqlConnection.query(sql, (err, users, fields) => {
         if (!err) {
            res.send(users);
