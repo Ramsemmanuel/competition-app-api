@@ -260,10 +260,10 @@ app.post('/add-artwork', (req, res) => {
 
 //Get all artworks
 app.get('/artworks', (req, res) => {
-    console.log('Fetching artworks by :',req.query)
+    //console.log('Fetching artworks by :',req.query)
     mysqlConnection.query('SELECT e.* FROM artworks  e INNER JOIN users u ON e.userId = u.id AND u.userGroup = "'+req.query.group+'"', (err, rows, fields) => {
         if (!err) {
-            console.log('Found Artworks :',rows.length)
+            //console.log('Found Artworks :',rows.length)
             res.send(rows);
         }
         else {
@@ -444,6 +444,66 @@ app.post('/artistsearch', (req, res) => {
     })
 });
 
+app.post('/competitorsearch', (req, res) => {
+    var d = req.body;
+    var sql = "SELECT a.firstName competitorFName,a.lastName competitorLName, a.email competitorEmail, a.userGroup competitorUserGroup, j.firstName judgeFName,j.lastName judgeLName,v.vote FROM votes v INNER JOIN users a ON v.entryUserId = a.id INNER JOIN users j ON v.voterId = j.id ";
+    var conditions = []
+    Object.keys(d).map((k)=>{
+        if(d[k]){
+
+            if(k == 'dateAdded')
+                conditions.push("( v.dateAdded LIKE '%"+d[k]+"%' OR v.modifiedDate LIKE '%"+ d[k]+"%' ) ")
+            else
+                conditions.push("a."+k+" LIKE '%"+d[k]+"%'")
+
+        }
+            
+    })
+
+    if(conditions.length)
+        sql += ' WHERE '+ conditions.join(' AND ');  
+        
+    //console.log(sql);
+    mysqlConnection.query(sql, (err, users, fields) => {
+        if (!err) {
+           res.send(users);
+        }
+        else {
+            console.log(err);
+        }
+    })
+});
+
+app.post('/result', (req, res) => {
+    var d = req.body;
+    var sql = "SELECT a.*,a.firstName competitorFName,a.lastName competitorLName, a.email competitorEmail, a.userGroup competitorUserGroup, j.firstName judgeFName,j.lastName judgeLName,v.vote FROM votes v INNER JOIN users a ON v.entryUserId = a.id AND v.vote='YES' INNER JOIN users j ON v.voterId = j.id ";
+    var conditions = []
+    Object.keys(d).map((k)=>{
+        if(d[k]){
+
+            if(k == 'dateAdded')
+                conditions.push("( v.dateAdded LIKE '%"+d[k]+"%' OR v.modifiedDate LIKE '%"+ d[k]+"%' ) ")
+            else
+                conditions.push("a."+k+" LIKE '%"+d[k]+"%'")
+
+        }
+            
+    })
+
+    if(conditions.length)
+        sql += ' WHERE '+ conditions.join(' AND ');  
+        
+    //console.log(sql);
+    mysqlConnection.query(sql, (err, users, fields) => {
+        if (!err) {
+           res.send(users);
+        }
+        else {
+            console.log(err);
+        }
+    })
+});
+
 app.post('/login', (req, res) => {
     let userData = req.body;
     mysqlConnection.query('SELECT * FROM users WHERE email = ?', [userData.email], (error, results, fields) => {
@@ -531,10 +591,10 @@ app.get('/entries-user-ids', (req, res) => {
 
 //Get all artworks
 app.get('/entries', (req, res) => {
-    console.log('Fetching entries by :',req.query)
+    //console.log('Fetching entries by :',req.query)
     mysqlConnection.query('SELECT e.* FROM entries e INNER JOIN users u ON e.userId = u.id AND u.userGroup = "'+req.query.group+'"', (err, rows, fields) => {
         if (!err) {
-            console.log('Found Entries :',rows.length)
+            //console.log('Found Entries :',rows.length)
             res.send(rows);
         }
         else {
@@ -563,10 +623,9 @@ app.put('/update-entry', (req, res) => {
 
 //Get all votes
 app.get('/votes', (req, res) => {
-    console.log('Fetching votes by :',req.query)
     mysqlConnection.query('SELECT e.* FROM votes e INNER JOIN users u ON e.entryUserId = u.id AND u.userGroup = "'+req.query.group+'"', (err, rows, fields) => {
         if (!err) {
-            console.log('Found Votes :',rows.length)
+            //console.log('Found Votes :',rows.length)
             res.send(rows);
         }
         else {
